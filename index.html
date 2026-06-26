@@ -1117,14 +1117,7 @@
         } catch(_) {}
       }
     } catch (e) {
-      try {
-        await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-          mode: 'no-cors'
-        });
-      } catch(_) {}
+      console.error('Erro ao enviar:', e);
     }
 
     await new Promise(r => setTimeout(r, 800));
