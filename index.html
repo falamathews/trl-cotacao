@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRL Internacional — Cotação de Frete</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --azul:      #087EE1;
+    --azul-esc:  #0A1E3D;
+    --azul-mid:  #0560B0;
+    --laranja:   #E8732A;
+    --laranja-l: #F5905A;
+    --branco:    #FFFFFF;
+    --cinza-f:   #F4F6FA;
+    --cinza-b:   #E8ECF2;
+    --cinza-t:   #6B7A99;
+    --texto:     #1A2540;
+    --borda:     #D0D8E8;
+    --sucesso:   #1DB87C;
+    --erro:      #E03E3E;
+    --shadow:    0 4px 24px rgba(8,126,225,.10);
+    --shadow-lg: 0 12px 48px rgba(8,126,225,.18);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cinza-f);
+    color: var(--texto);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--azul-esc);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.3);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    background: var(--laranja);
+    color: white;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .logo-text {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: .3px;
+    line-height: 1.3;
+  }
+
+  .logo-text span {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,.55);
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .header-badge {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    color: rgba(255,255,255,.7);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+
+  /* ── HERO STRIP ── */
+  .hero {
+    background: linear-gradient(135deg, var(--azul-esc) 0%, var(--azul-mid) 60%, var(--azul) 100%);
+    padding: 40px 32px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 320px; height: 320px;
+    background: var(--laranja);
+    opacity: .06;
+    border-radius: 50%;
+  }
+
+  .hero-inner { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.2);
+    color: rgba(255,255,255,.85);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+
+  .hero-eyebrow::before {
+    content: '●';
+    color: var(--laranja-l);
+    font-size: 8px;
+  }
+
+  .hero h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: .5px;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--laranja-l);
+  }
+
+  .hero p {
+    color: rgba(255,255,255,.65);
+    font-size: 14px;
+    max-width: 520px;
+  }
+
+  /* ── CONTAINER ── */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--azul-esc);
+    padding: 6px;
+    border-radius: 12px;
+    margin-bottom: 28px;
+  }
+
+  .tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,.5);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: .3px;
+  }
+
+  .tab:hover { color: rgba(255,255,255,.85); background: rgba(255,255,255,.07); }
+
+  .tab.active {
+    background: var(--laranja);
+    color: white;
+    box-shadow: 0 2px 12px rgba(232,115,42,.4);
+  }
+
+  .tab-icon { font-size: 16px; }
+
+  /* ── CARD ── */
+  .card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: linear-gradient(90deg, var(--azul-esc), var(--azul-mid));
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .card-header-icon {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,.12);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .card-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: .5px;
+  }
+
+  .card-header p {
+    font-size: 12px;
+    color: rgba(255,255,255,.55);
+    margin-top: 2px;
+  }
+
+  .card-body { padding: 28px; }
+
+  /* ── SECTION DIVIDER ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 24px 0 16px;
+    color: var(--azul);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .section-label::before, .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--borda);
+  }
+
+  .section-label:first-child { margin-top: 0; }
+
+  /* ── GRID ── */
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .col-span-2 { grid-column: span 2; }
+  .col-span-3 { grid-column: span 3; }
+
+  @media (max-width: 640px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .col-span-2, .col-span-3 { grid-column: span 1; }
+    .tabs { flex-direction: column; }
+    .hero h1 { font-size: 26px; }
+  }
+
+  /* ── FIELD ── */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  .field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cinza-t);
+    letter-spacing: .4px;
+    text-transform: uppercase;
+  }
+
+  .field label .req {
+    color: var(--laranja);
+    margin-left: 2px;
+  }
+
+  .field label .opt {
+    color: var(--cinza-t);
+    font-weight: 400;
+    font-size: 10px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    border: 1.5px solid var(--borda);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: var(--texto);
+    background: white;
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--azul);
+    box-shadow: 0 0 0 3px rgba(8,126,225,.12);
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder { color: #B0BAD0; }
+
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7A99' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  .field input.error,
+  .field select.error { border-color: var(--erro); }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--cinza-t);
+    margin-top: -2px;
+  }
+
+  /* ── TOGGLE (sem data) ── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--borda);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color .2s;
+    user-select: none;
+  }
+
+  .toggle-row:hover { border-color: var(--azul); }
+
+  .toggle-row input[type=checkbox] {
+    width: 16px; height: 16px;
+    accent-color: var(--azul);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .toggle-row span {
+    font-size: 13px;
+    color: var(--cinza-t);
+  }
+
+  /* ── MARITIMO EXTRAS ── */
+  .maritimo-extra { display: none; }
+  .maritimo-extra.show { display: grid; }
+
+  /* ── SUBMIT ── */
+  .submit-area {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--cinza-b);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .submit-note {
+    font-size: 12px;
+    color: var(--cinza-t);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .submit-note::before { content: '🔒'; font-size: 14px; }
+
+  .btn-submit {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--laranja);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 16px rgba(232,115,42,.35);
+    letter-spacing: .3px;
+  }
+
+  .btn-submit:hover {
+    background: var(--laranja-l);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(232,115,42,.45);
+  }
+
+  .btn-submit:active { transform: translateY(0); }
+
+  .btn-submit .arrow { font-size: 18px; transition: transform .2s; }
+  .btn-submit:hover .arrow { transform: translateX(4px); }
+
+  /* ── SUCCESS STATE ── */
+  .success-overlay {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 28px;
+    gap: 16px;
+  }
+
+  .success-overlay.show { display: flex; }
+  .success-overlay.show + .card-body-content { display: none; }
+
+  .success-icon {
+    width: 72px; height: 72px;
+    background: rgba(29,184,124,.1);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+
+  .success-id {
+    background: var(--cinza-f);
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--azul);
+    letter-spacing: 2px;
+  }
+
+  .success-overlay h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--texto);
+  }
+
+  .success-overlay p {
+    font-size: 14px;
+    color: var(--cinza-t);
+    max-width: 380px;
+  }
+
+  .btn-novo {
+    margin-top: 8px;
+    background: var(--azul);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  .btn-novo:hover { background: var(--azul-mid); }
+
+  /* ── PANEL ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── LOADER ── */
+  .btn-submit .spinner {
+    display: none;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  .btn-submit.loading .spinner { display: block; }
+  .btn-submit.loading .btn-label { display: none; }
+  .btn-submit.loading .arrow { display: none; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: var(--cinza-t);
+  }
+
+  footer strong { color: var(--azul); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">TRL</div>
+    <div class="logo-text">
+      Internacional
+      <span>Importação &amp; Exportação</span>
+    </div>
+  </div>
+  <div class="header-badge">Portal Interno</div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Cotação de Frete Internacional</div>
+    <h1>Solicite sua <em>cotação</em><br>de frete</h1>
+    <p>Preencha os dados da carga e o sistema disparará automaticamente para os agentes de frete.</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TABS -->
+  <div class="tabs" role="tablist">
+    <button class="tab active" role="tab" onclick="switchTab('maritimo', this)">
+      <span class="tab-icon">🚢</span> Marítimo
+    </button>
+    <button class="tab" role="tab" onclick="switchTab('aereo', this)">
+      <span class="tab-icon">✈️</span> Aéreo
+    </button>
+    <button class="tab" role="tab" onclick="switchTab('rodoviario', this)">
+      <span class="tab-icon">🚛</span> Rodoviário
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════ MARÍTIMO ═══ -->
+  <div id="panel-maritimo" class="panel active">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🚢</div>
+        <div>
+          <h2>Marítimo — Dados da Carga</h2>
+          <p>Preencha todos os campos obrigatórios para gerar a cotação</p>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div id="success-maritimo" class="success-overlay">
+          <div class="success-icon">✅</div>
+          <h3>Cotação enviada com sucesso!</h3>
+          <div class="success-id" id="id-maritimo"></div>
+          <p>Os agentes de frete já foram notificados. Acompanhe as respostas pelo ClickUp.</p>
+          <button class="btn-novo" onclick="resetForm('maritimo')">Nova cotação</button>
+        </div>
+
+        <div class="card-body-content" id="form-maritimo">
+          <div class="section-label">Identificação</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>REF. TRL <span class="req">*</span></label>
+              <input type="text" id="m-ref" placeholder="Ex: DP.EI-IEN AE NON 02" required>
+            </div>
+            <div class="field">
+              <label>Cliente <span class="req">*</span></label>
+              <input type="text" id="m-cliente" placeholder="Razão social do cliente" required>
+            </div>
+            <div class="field">
+              <label>Solicitante <span class="req">*</span></label>
+              <input type="email" id="m-solicitante" placeholder="email@trlinternacional.com.br" required>
+            </div>
+            <div class="field">
+              <label>Preferência do cliente <span class="req">*</span></label>
+              <select id="m-preferencia" required>
+                <option value="">Selecione...</option>
+                <option>Menores custos</option>
+                <option>Menor transit time</option>
+                <option>Sem preferência</option>
+                <option>Armador específico</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-label">Rota</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>Local de embarque / coleta na origem <span class="req">*</span></label>
+              <input type="text" id="m-origem" placeholder="Ex: Shanghai, China" required>
+            </div>
+            <div class="field">
+              <label>Local de desembarque no Brasil <span class="req">*</span></label>
+              <input type="text" id="m-destino" placeholder="Ex: Porto de Itajaí - SC" required>
+            </div>
+            <div class="field">
+              <label>Incoterm da operação <span class="req">*</span></label>
+              <select id="m-incoterm" required>
+                <option value="">Selecione...</option>
+                <option>FOB</option>
+                <option>CIF</option>
+                <option>EXW</option>
+                <option>CFR</option>
+                <option>DAP</option>
+                <option>DDP</option>
+                <option>FCA</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Data de prontidão <span class="opt">(se tiver)</span></label>
+              <input type="date" id="m-prontidao">
+              <label class="toggle-row" style="margin-top:6px">
+                <input type="checkbox" id="m-sem-data" onchange="toggleSemData('m-prontidao','m-sem-data')">
+                <span>Sem data definida — estimativa</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="section-label">Tipo de Operação Marítima</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>Tipo <span class="req">*</span></label>
+              <select id="m-tipo" onchange="toggleFCL(this.value)" required>
+                <option value="">Selecione...</option>
+                <option value="FCL">FCL — Full Container Load</option>
+                <option value="LCL">LCL — Less than Container Load</option>
+              </select>
+            </div>
+            <div class="field maritimo-extra" id="fcl-container">
+              <label>Tipo de container <span class="req">*</span></label>
+              <select id="m-container">
+                <option value="">Selecione...</option>
+                <option>20' Dry</option>
+                <option>40' Dry</option>
+                <option>40' HC</option>
+                <option>20' Reefer</option>
+                <option>40' Reefer</option>
+                <option>20' Open Top</option>
+                <option>40' Open Top</option>
+                <option>20' Flat Rack</option>
+                <option>40' Flat Rack</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-label">Dados da Carga</div>
+          <div class="grid grid-3">
+            <div class="field">
+              <label>Qtde de volumes <span class="req">*</span></label>
+              <input type="number" id="m-volumes" placeholder="Ex: 48" min="1" required>
+            </div>
+            <div class="field">
+              <label>Peso bruto (kg) <span class="req">*</span></label>
+              <input type="number" id="m-peso" placeholder="Ex: 12500" min="0" required>
+            </div>
+            <div class="field">
+              <label>CBM (m³) <span class="req">*</span></label>
+              <input type="number" id="m-cbm" placeholder="Ex: 58.40" step="0.01" min="0" required>
+            </div>
+            <div class="field col-span-3">
+              <label>Dimensões da carga <span class="req">*</span></label>
+              <input type="text" id="m-dimensoes" placeholder="Ex: 120 x 80 x 100 cm por volume" required>
+            </div>
+          </div>
+
+          <div class="section-label">Mercadoria</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>NCM(s) <span class="opt">(se tiver)</span></label>
+              <input type="text" id="m-ncm" placeholder="Ex: 3926.90.90, 8471.30.12">
+            </div>
+            <div class="field">
+              <label>Entrega nacional <span class="opt">(se tiver)</span></label>
+              <input type="text" id="m-entrega" placeholder="Ex: Rua X, São Paulo - SP">
+            </div>
+            <div class="field col-span-2">
+              <label>Descrição simplificada da mercadoria <span class="req">*</span></label>
+              <textarea id="m-descricao" placeholder="Ex: Peças plásticas para uso industrial, sem partes móveis" required></textarea>
+            </div>
+          </div>
+
+          <div class="submit-area">
+            <div class="submit-note">Uso interno — TRL Internacional</div>
+            <button class="btn-submit" id="btn-m" onclick="submitForm('maritimo')">
+              <div class="spinner"></div>
+              <span class="btn-label">Enviar para cotação</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ AÉREO ═══ -->
+  <div id="panel-aereo" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">✈️</div>
+        <div>
+          <h2>Aéreo — Dados da Carga</h2>
+          <p>Preencha todos os campos obrigatórios para gerar a cotação</p>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div id="success-aereo" class="success-overlay">
+          <div class="success-icon">✅</div>
+          <h3>Cotação enviada com sucesso!</h3>
+          <div class="success-id" id="id-aereo"></div>
+          <p>Os agentes de frete já foram notificados. Acompanhe as respostas pelo ClickUp.</p>
+          <button class="btn-novo" onclick="resetForm('aereo')">Nova cotação</button>
+        </div>
+
+        <div class="card-body-content" id="form-aereo">
+          <div class="section-label">Identificação</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>REF. TRL <span class="req">*</span></label>
+              <input type="text" id="a-ref" placeholder="Ex: DP.EI-IEN AE NON 02" required>
+            </div>
+            <div class="field">
+              <label>Cliente <span class="req">*</span></label>
+              <input type="text" id="a-cliente" placeholder="Razão social do cliente" required>
+            </div>
+            <div class="field">
+              <label>Solicitante <span class="req">*</span></label>
+              <input type="email" id="a-solicitante" placeholder="email@trlinternacional.com.br" required>
+            </div>
+            <div class="field">
+              <label>Preferência do cliente <span class="req">*</span></label>
+              <select id="a-preferencia" required>
+                <option value="">Selecione...</option>
+                <option>Menores custos</option>
+                <option>Menor transit time</option>
+                <option>Sem preferência</option>
+                <option>Companhia aérea específica</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-label">Rota</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>Local de embarque / coleta na origem <span class="req">*</span></label>
+              <input type="text" id="a-origem" placeholder="Ex: Hong Kong, China" required>
+            </div>
+            <div class="field">
+              <label>Local de desembarque no Brasil <span class="req">*</span></label>
+              <input type="text" id="a-destino" placeholder="Ex: Aeroporto de Guarulhos - SP" required>
+            </div>
+            <div class="field">
+              <label>Incoterm da operação <span class="req">*</span></label>
+              <select id="a-incoterm" required>
+                <option value="">Selecione...</option>
+                <option>FOB</option>
+                <option>CIF</option>
+                <option>EXW</option>
+                <option>CFR</option>
+                <option>DAP</option>
+                <option>DDP</option>
+                <option>FCA</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Data de prontidão <span class="opt">(se tiver)</span></label>
+              <input type="date" id="a-prontidao">
+              <label class="toggle-row" style="margin-top:6px">
+                <input type="checkbox" id="a-sem-data" onchange="toggleSemData('a-prontidao','a-sem-data')">
+                <span>Sem data definida — estimativa</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="section-label">Dados da Carga</div>
+          <div class="grid grid-3">
+            <div class="field">
+              <label>Qtde de volumes <span class="req">*</span></label>
+              <input type="number" id="a-volumes" placeholder="Ex: 10" min="1" required>
+            </div>
+            <div class="field">
+              <label>Peso bruto (kg) <span class="req">*</span></label>
+              <input type="number" id="a-peso" placeholder="Ex: 320" min="0" required>
+            </div>
+            <div class="field">
+              <label>CBM (m³) <span class="req">*</span></label>
+              <input type="number" id="a-cbm" placeholder="Ex: 2.80" step="0.01" min="0" required>
+            </div>
+            <div class="field col-span-3">
+              <label>Dimensões da carga <span class="req">*</span></label>
+              <input type="text" id="a-dimensoes" placeholder="Ex: 60 x 40 x 50 cm por volume" required>
+            </div>
+          </div>
+
+          <div class="section-label">Mercadoria</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>NCM(s) <span class="opt">(se tiver)</span></label>
+              <input type="text" id="a-ncm" placeholder="Ex: 8471.30.12">
+            </div>
+            <div class="field">
+              <label>Entrega nacional <span class="opt">(se tiver)</span></label>
+              <input type="text" id="a-entrega" placeholder="Ex: Rua X, São Paulo - SP">
+            </div>
+            <div class="field col-span-2">
+              <label>Descrição simplificada da mercadoria <span class="req">*</span></label>
+              <textarea id="a-descricao" placeholder="Ex: Equipamentos eletrônicos para uso corporativo" required></textarea>
+            </div>
+          </div>
+
+          <div class="submit-area">
+            <div class="submit-note">Uso interno — TRL Internacional</div>
+            <button class="btn-submit" id="btn-a" onclick="submitForm('aereo')">
+              <div class="spinner"></div>
+              <span class="btn-label">Enviar para cotação</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ RODOVIÁRIO ═══ -->
+  <div id="panel-rodoviario" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🚛</div>
+        <div>
+          <h2>Rodoviário — Dados da Carga</h2>
+          <p>Preencha todos os campos obrigatórios para gerar a cotação</p>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div id="success-rodoviario" class="success-overlay">
+          <div class="success-icon">✅</div>
+          <h3>Cotação enviada com sucesso!</h3>
+          <div class="success-id" id="id-rodoviario"></div>
+          <p>Os agentes de frete já foram notificados. Acompanhe as respostas pelo ClickUp.</p>
+          <button class="btn-novo" onclick="resetForm('rodoviario')">Nova cotação</button>
+        </div>
+
+        <div class="card-body-content" id="form-rodoviario">
+          <div class="section-label">Identificação</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>REF. TRL <span class="req">*</span></label>
+              <input type="text" id="r-ref" placeholder="Ex: DP.EI-IEN AE NON 02" required>
+            </div>
+            <div class="field">
+              <label>Cliente <span class="req">*</span></label>
+              <input type="text" id="r-cliente" placeholder="Razão social do cliente" required>
+            </div>
+            <div class="field">
+              <label>Solicitante <span class="req">*</span></label>
+              <input type="email" id="r-solicitante" placeholder="email@trlinternacional.com.br" required>
+            </div>
+            <div class="field">
+              <label>Preferência do cliente <span class="req">*</span></label>
+              <select id="r-preferencia" required>
+                <option value="">Selecione...</option>
+                <option>Menores custos</option>
+                <option>Menor transit time</option>
+                <option>Sem preferência</option>
+                <option>Transportadora específica</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-label">Rota</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>Local de embarque na origem <span class="req">*</span></label>
+              <input type="text" id="r-origem" placeholder="Ex: Buenos Aires, Argentina" required>
+            </div>
+            <div class="field">
+              <label>Local de desembarque no Brasil <span class="req">*</span></label>
+              <input type="text" id="r-destino" placeholder="Ex: Foz do Iguaçu - PR" required>
+            </div>
+            <div class="field">
+              <label>Incoterm da operação <span class="req">*</span></label>
+              <select id="r-incoterm" required>
+                <option value="">Selecione...</option>
+                <option>FOB</option>
+                <option>CIF</option>
+                <option>EXW</option>
+                <option>CFR</option>
+                <option>DAP</option>
+                <option>DDP</option>
+                <option>FCA</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Data de prontidão <span class="opt">(se tiver)</span></label>
+              <input type="date" id="r-prontidao">
+              <label class="toggle-row" style="margin-top:6px">
+                <input type="checkbox" id="r-sem-data" onchange="toggleSemData('r-prontidao','r-sem-data')">
+                <span>Sem data definida — estimativa</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="section-label">Dados da Carga</div>
+          <div class="grid grid-3">
+            <div class="field">
+              <label>Qtde de volumes <span class="req">*</span></label>
+              <input type="number" id="r-volumes" placeholder="Ex: 24" min="1" required>
+            </div>
+            <div class="field">
+              <label>Peso bruto (kg) <span class="req">*</span></label>
+              <input type="number" id="r-peso" placeholder="Ex: 8000" min="0" required>
+            </div>
+            <div class="field">
+              <label>CBM (m³) <span class="req">*</span></label>
+              <input type="number" id="r-cbm" placeholder="Ex: 32.00" step="0.01" min="0" required>
+            </div>
+            <div class="field col-span-3">
+              <label>Dimensões da carga <span class="req">*</span></label>
+              <input type="text" id="r-dimensoes" placeholder="Ex: 100 x 80 x 120 cm por volume" required>
+            </div>
+          </div>
+
+          <div class="section-label">Mercadoria</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>NCM(s) <span class="opt">(se tiver)</span></label>
+              <input type="text" id="r-ncm" placeholder="Ex: 6204.62.00">
+            </div>
+            <div class="field">
+              <label>Entrega nacional <span class="opt">(se tiver)</span></label>
+              <input type="text" id="r-entrega" placeholder="Ex: Rua X, Curitiba - PR">
+            </div>
+            <div class="field col-span-2">
+              <label>Descrição simplificada da mercadoria <span class="req">*</span></label>
+              <textarea id="r-descricao" placeholder="Ex: Confecções têxteis diversas para uso pessoal" required></textarea>
+            </div>
+          </div>
+
+          <div class="submit-area">
+            <div class="submit-note">Uso interno — TRL Internacional</div>
+            <button class="btn-submit" id="btn-r" onclick="submitForm('rodoviario')">
+              <div class="spinner"></div>
+              <span class="btn-label">Enviar para cotação</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <strong>TRL Internacional</strong> — Sistema interno de cotação de frete · REF. DOC: IT.CT.CFI.02
+</footer>
+
+<script>
+  // ── TAB SWITCHER ──
+  function switchTab(modal, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + modal).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── FCL/LCL TOGGLE ──
+  function toggleFCL(val) {
+    const el = document.getElementById('fcl-container');
+    if (val === 'FCL') {
+      el.classList.add('show');
+      el.style.display = 'flex';
+      el.style.flexDirection = 'column';
+      el.style.gap = '6px';
+    } else {
+      el.classList.remove('show');
+      el.style.display = 'none';
+    }
+  }
+
+  // ── SEM DATA TOGGLE ──
+  function toggleSemData(inputId, checkId) {
+    const input = document.getElementById(inputId);
+    const check = document.getElementById(checkId);
+    if (check.checked) {
+      input.disabled = true;
+      input.value = '';
+      input.style.opacity = '.35';
+    } else {
+      input.disabled = false;
+      input.style.opacity = '1';
+    }
+  }
+
+  // ── ID GENERATOR ──
+  function generateId(modal) {
+    const prefix = modal === 'maritimo' ? 'MAR' : modal === 'aereo' ? 'AER' : 'ROD';
+    const year = new Date().getFullYear();
+    const num = String(Math.floor(Math.random() * 9000) + 1000);
+    return 'COT-' + prefix + '-' + year + '-' + num;
+  }
+
+  // ── VALIDATE ──
+  function validate(fields) {
+    let ok = true;
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (!el.value || el.value.trim() === '') {
+        el.classList.add('error');
+        ok = false;
+        el.addEventListener('input', () => el.classList.remove('error'), { once: true });
+      }
+    });
+    return ok;
+  }
+
+  // ── REQUIRED FIELDS PER MODAL ──
+  const required = {
+    maritimo:   ['m-ref','m-cliente','m-solicitante','m-preferencia','m-origem','m-destino','m-incoterm','m-tipo','m-volumes','m-peso','m-cbm','m-dimensoes','m-descricao'],
+    aereo:      ['a-ref','a-cliente','a-solicitante','a-preferencia','a-origem','a-destino','a-incoterm','a-volumes','a-peso','a-cbm','a-dimensoes','a-descricao'],
+    rodoviario: ['r-ref','r-cliente','r-solicitante','r-preferencia','r-origem','r-destino','r-incoterm','r-volumes','r-peso','r-cbm','r-dimensoes','r-descricao'],
+  };
+
+  // ── COLLECT DATA ──
+  function collectData(modal) {
+    const p = modal === 'maritimo' ? 'm' : modal === 'aereo' ? 'a' : 'r';
+    const semData = document.getElementById(p + '-sem-data');
+    const pront = semData && semData.checked ? 'Sem data definida — estimativa' : (document.getElementById(p + '-prontidao') ? document.getElementById(p + '-prontidao').value : '');
+
+    const base = {
+      modalidade:   modal.charAt(0).toUpperCase() + modal.slice(1),
+      ref_trl:      document.getElementById(p + '-ref').value,
+      cliente:      document.getElementById(p + '-cliente').value,
+      solicitante:  document.getElementById(p + '-solicitante').value,
+      preferencia:  document.getElementById(p + '-preferencia').value,
+      origem:       document.getElementById(p + '-origem').value,
+      destino:      document.getElementById(p + '-destino').value,
+      incoterm:     document.getElementById(p + '-incoterm').value,
+      data_prontidao: pront,
+      qtde_volumes: document.getElementById(p + '-volumes').value,
+      peso_bruto_kg: document.getElementById(p + '-peso').value,
+      cbm:          document.getElementById(p + '-cbm').value,
+      dimensoes:    document.getElementById(p + '-dimensoes').value,
+      ncm:          document.getElementById(p + '-ncm') ? document.getElementById(p + '-ncm').value : '',
+      entrega_nacional: document.getElementById(p + '-entrega') ? document.getElementById(p + '-entrega').value : '',
+      descricao:    document.getElementById(p + '-descricao').value,
+    };
+
+    if (modal === 'maritimo') {
+      base.tipo_operacao = document.getElementById('m-tipo').value;
+      base.tipo_container = document.getElementById('m-container') ? document.getElementById('m-container').value : '';
+    }
+
+    return base;
+  }
+
+  // ── SUBMIT ──
+  async function submitForm(modal) {
+    if (!validate(required[modal])) {
+      alert('Por favor, preencha todos os campos obrigatórios (marcados com *).');
+      return;
+    }
+
+    const btn = document.getElementById('btn-' + modal[0]);
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    const data = collectData(modal);
+    const cotId = generateId(modal);
+    data.id_cotacao = cotId;
+
+    // Teste: webhook-test | Produção: webhook (após conectar Gmail no n8n)
+    const WEBHOOK_URL = 'https://clintmatheus.app.n8n.cloud/webhook-test/cotacao-trl';
+
+    try {
+      await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        mode: 'no-cors'
+      });
+    } catch (e) {
+      // no-cors: sem resposta, considera enviado
+    }
+
+    // Aguarda 1.5s pra dar sensação de processamento
+    await new Promise(r => setTimeout(r, 1500));
+
+    btn.classList.remove('loading');
+    btn.disabled = false;
+
+    document.getElementById('id-' + modal).textContent = cotId;
+    document.getElementById('success-' + modal).classList.add('show');
+    document.getElementById('form-' + modal).style.display = 'none';
+
+    // Scroll pro topo do card
+    document.getElementById('panel-' + modal).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── RESET ──
+  function resetForm(modal) {
+    document.getElementById('success-' + modal).classList.remove('show');
+    document.getElementById('form-' + modal).style.display = 'block';
+    const panel = document.getElementById('panel-' + modal);
+    panel.querySelectorAll('input, select, textarea').forEach(el => {
+      el.value = '';
+      el.disabled = false;
+      el.style.opacity = '1';
+      el.classList.remove('error');
+    });
+    if (modal === 'maritimo') {
+      document.getElementById('fcl-container').style.display = 'none';
+    }
+  }
+</script>
+
+</body>
+</html>
