@@ -1084,45 +1084,59 @@
   }
 
   // ── SUBMIT ──
+  const _submitting = {};
   async function submitForm(modal) {
+    if (_submitting[modal]) return;
     if (!validate(required[modal])) {
       alert('Por favor, preencha todos os campos obrigatórios (marcados com *).');
       return;
     }
 
+    _submitting[modal] = true;
     const btn = document.getElementById('btn-' + modal[0]);
     btn.classList.add('loading');
     btn.disabled = true;
 
     const data = collectData(modal);
-    const cotId = generateId(modal);
-    data.id_cotacao = cotId;
+    const cotIdLocal = generateId(modal);
+    data.id_cotacao = cotIdLocal;
 
-    // Teste: webhook-test | Produção: webhook (após conectar Gmail no n8n)
     const WEBHOOK_URL = 'https://clintmatheus.app.n8n.cloud/webhook/cotacao-trl';
 
+    let cotIdFinal = cotIdLocal;
     try {
-      await fetch(WEBHOOK_URL, {
+      const resp = await fetch(WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-        mode: 'no-cors'
       });
+      if (resp.ok) {
+        try {
+          const json = await resp.json();
+          if (json && json.id_cotacao) cotIdFinal = json.id_cotacao;
+        } catch(_) {}
+      }
     } catch (e) {
-      // no-cors: sem resposta, considera enviado
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          mode: 'no-cors'
+        });
+      } catch(_) {}
     }
 
-    // Aguarda 1.5s pra dar sensação de processamento
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise(r => setTimeout(r, 800));
 
     btn.classList.remove('loading');
     btn.disabled = false;
+    _submitting[modal] = false;
 
-    document.getElementById('id-' + modal).textContent = cotId;
+    document.getElementById('id-' + modal).textContent = cotIdFinal;
     document.getElementById('success-' + modal).classList.add('show');
     document.getElementById('form-' + modal).style.display = 'none';
 
-    // Scroll pro topo do card
     document.getElementById('panel-' + modal).scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
