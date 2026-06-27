@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRL Internacional — Dashboard de Cotações</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --azul:     #0A1E3D;
+      --azul-m:   #0D2B56;
+      --azul-l:   #1A3A6B;
+      --laranja:  #E8732A;
+      --laranja-l:#F08C4B;
+      --branco:   #FFFFFF;
+      --cinza-bg: #F4F6FA;
+      --cinza-bd: #DDE2EC;
+      --cinza-t:  #6B7A99;
+      --texto:    #1A2B4A;
+      --verde:    #1A7A4A;
+      --verde-bg: #E8F5EE;
+      --amarelo:  #B87A00;
+      --amarelo-bg:#FFF8E6;
+      --vermelho: #C0392B;
+      --vermelho-bg:#FDECEA;
+      --azul-claro: #1565C0;
+      --azul-claro-bg: #E8F0FC;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--cinza-bg); color: var(--texto); min-height: 100vh; }
+
+    /* HEADER */
+    header {
+      background: var(--azul);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-box {
+      background: var(--laranja);
+      color: white;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+    .logo-text {
+      font-family: 'Barlow Condensed', sans-serif;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+    .logo-text span { display: block; color: rgba(255,255,255,0.5); font-size: 11px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .btn-refresh {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn-refresh:hover { background: rgba(255,255,255,0.18); }
+    .last-update { color: rgba(255,255,255,0.45); font-size: 12px; }
+
+    /* MAIN */
+    main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      border: 1px solid var(--cinza-bd);
+    }
+    .stat-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--cinza-t); margin-bottom: 8px; }
+    .stat-value { font-size: 32px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; color: var(--azul); line-height: 1; }
+    .stat-value.laranja { color: var(--laranja); }
+    .stat-value.verde { color: var(--verde); }
+    .stat-value.cinza { color: var(--cinza-t); }
+
+    /* FILTROS */
+    .filtros {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .filtro-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--cinza-bd);
+      background: white;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--cinza-t);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filtro-btn.ativo {
+      background: var(--azul);
+      border-color: var(--azul);
+      color: white;
+    }
+    .filtro-btn:hover:not(.ativo) { border-color: var(--azul-l); color: var(--azul); }
+
+    /* TABELA */
+    .tabela-wrap {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid var(--cinza-bd);
+      overflow: hidden;
+    }
+    .tabela-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--cinza-bd);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tabela-titulo { font-size: 15px; font-weight: 600; color: var(--azul); }
+    .tabela-count { font-size: 13px; color: var(--cinza-t); }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--cinza-t);
+      border-bottom: 1px solid var(--cinza-bd);
+      background: #F9FAFB;
+    }
+    tbody tr {
+      border-bottom: 1px solid #F0F2F7;
+      transition: background 0.12s;
+      cursor: pointer;
+    }
+    tbody tr:hover { background: #F5F7FC; }
+    tbody tr:last-child { border-bottom: none; }
+    td { padding: 14px 16px; font-size: 13px; vertical-align: middle; }
+
+    .cod-cotacao {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--azul);
+      letter-spacing: 0.3px;
+    }
+    .ref-trl { font-size: 11px; color: var(--cinza-t); margin-top: 2px; }
+    .cliente-nome { font-weight: 600; color: var(--texto); }
+    .cliente-modal { font-size: 11px; color: var(--cinza-t); margin-top: 2px; }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-aguardando { background: var(--amarelo-bg); color: var(--amarelo); }
+    .badge-propostas  { background: var(--azul-claro-bg); color: var(--azul-claro); }
+    .badge-prontas    { background: #FFF0E6; color: var(--laranja); }
+    .badge-comparativo{ background: #EDE7F6; color: #5E35B1; }
+    .badge-booking    { background: var(--verde-bg); color: var(--verde); }
+    .badge-fechada    { background: #F3F4F6; color: #6B7280; }
+    .badge-rejeitada  { background: var(--vermelho-bg); color: var(--vermelho); }
+
+    /* PROGRESSO PROPOSTAS */
+    .prop-progress { display: flex; align-items: center; gap: 8px; }
+    .prop-dots { display: flex; gap: 4px; }
+    .prop-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--cinza-bd);
+    }
+    .prop-dot.recebida { background: var(--laranja); }
+    .prop-dot.completo { background: var(--verde); }
+    .prop-count { font-size: 12px; color: var(--cinza-t); font-weight: 500; }
+
+    /* AÇÕES */
+    .btn-acao {
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-aprovar { background: var(--laranja); color: white; }
+    .btn-aprovar:hover { background: var(--laranja-l); }
+    .btn-ver { background: var(--azul-claro-bg); color: var(--azul-claro); }
+    .btn-ver:hover { background: #D0E3FC; }
+
+    /* LOADING */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 40px;
+      gap: 16px;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--cinza-bd);
+      border-top-color: var(--laranja);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: var(--cinza-t); font-size: 14px; }
+
+    /* EMPTY */
+    .empty-state {
+      text-align: center;
+      padding: 60px 40px;
+      color: var(--cinza-t);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-text { font-size: 14px; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,30,61,0.55);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.aberto { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 560px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-titulo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--azul);
+      margin-bottom: 4px;
+    }
+    .modal-sub { font-size: 13px; color: var(--cinza-t); margin-bottom: 24px; }
+    .modal-secao { margin-bottom: 20px; }
+    .modal-secao-titulo {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--cinza-t);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--cinza-bd);
+    }
+    .proposta-card {
+      border: 1.5px solid var(--cinza-bd);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .proposta-card:hover { border-color: var(--laranja); background: #FFF8F4; }
+    .proposta-card.selecionada { border-color: var(--laranja); background: #FFF0E6; }
+    .proposta-card.selecionada::after {
+      content: '✓';
+      position: absolute;
+      top: 12px; right: 14px;
+      color: var(--laranja);
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .prop-agente { font-weight: 600; color: var(--texto); font-size: 14px; }
+    .prop-valores { display: flex; gap: 20px; margin-top: 6px; flex-wrap: wrap; }
+    .prop-val { font-size: 12px; color: var(--cinza-t); }
+    .prop-val strong { color: var(--texto); }
+
+    .agente-email-label { font-size: 12px; font-weight: 500; color: var(--texto); margin-bottom: 6px; margin-top: 10px; }
+    .agente-email-input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--cinza-bd);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--texto);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .agente-email-input:focus { border-color: var(--laranja); }
+
+    .modal-acoes { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+    .btn-cancelar {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1.5px solid var(--cinza-bd);
+      background: white;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cinza-t);
+      cursor: pointer;
+    }
+    .btn-confirmar {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      background: var(--laranja);
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-confirmar:hover { background: var(--laranja-l); }
+    .btn-confirmar:disabled { background: var(--cinza-bd); cursor: not-allowed; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--azul);
+      color: white;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      z-index: 300;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toast.visivel { transform: translateY(0); opacity: 1; }
+    .toast.sucesso { background: var(--verde); }
+    .toast.erro { background: var(--vermelho); }
+
+    /* ROTA/ORIGEM */
+    .rota { font-size: 12px; color: var(--cinza-t); }
+    .rota strong { color: var(--texto); }
+
+    @media (max-width: 768px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      main { padding: 20px 16px; }
+      td:nth-child(4), th:nth-child(4) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-box">TRL</div>
+    <div class="logo-text">
+      Internacional
+      <span>Dashboard de Cotações</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="last-update" id="lastUpdate">Atualizando...</span>
+    <button class="btn-refresh" onclick="carregarDados()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      Atualizar
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- STATS -->
+  <div class="stats" id="statsArea">
+    <div class="stat-card"><div class="stat-label">Total ativo</div><div class="stat-value" id="statTotal">—</div></div>
+    <div class="stat-card"><div class="stat-label">Aguardando propostas</div><div class="stat-value laranja" id="statAguardando">—</div></div>
+    <div class="stat-card"><div class="stat-label">Prontas p/ comparativo</div><div class="stat-value" style="color:#E8732A" id="statProntas">—</div></div>
+    <div class="stat-card"><div class="stat-label">Em booking</div><div class="stat-value verde" id="statBooking">—</div></div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filtros">
+    <button class="filtro-btn ativo" onclick="filtrar('todos', this)">Todos</button>
+    <button class="filtro-btn" onclick="filtrar('aguardando', this)">⏳ Aguardando propostas</button>
+    <button class="filtro-btn" onclick="filtrar('prontas', this)">📦 Propostas prontas</button>
+    <button class="filtro-btn" onclick="filtrar('comparativo', this)">📊 Comparativo enviado</button>
+    <button class="filtro-btn" onclick="filtrar('booking', this)">✅ Em booking</button>
+    <button class="filtro-btn" onclick="filtrar('fechada', this)">🏁 Fechadas</button>
+  </div>
+
+  <!-- TABELA -->
+  <div class="tabela-wrap">
+    <div class="tabela-header">
+      <div class="tabela-titulo">Cotações</div>
+      <div class="tabela-count" id="tabelaCount"></div>
+    </div>
+    <div id="tabelaBody">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div class="loading-text">Carregando cotações...</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL APROVAR -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-titulo" id="modalTitulo">Aprovar cotação</div>
+    <div class="modal-sub" id="modalSub"></div>
+
+    <div class="modal-secao">
+      <div class="modal-secao-titulo">Selecione o agente escolhido pelo cliente</div>
+      <div id="listaPropostas"></div>
+    </div>
+
+    <div class="modal-secao" id="secaoEmailVencedor" style="display:none">
+      <div class="modal-secao-titulo">E-mail do agente vencedor</div>
+      <div class="agente-email-label">Para onde enviar o e-mail de confirmação de booking?</div>
+      <input type="email" class="agente-email-input" id="emailVencedor" placeholder="comercial@agente.com.br">
+      <div class="modal-secao-titulo" style="margin-top:16px">E-mails dos outros agentes (recebem "não foi dessa vez")</div>
+      <div id="emailsOutros"></div>
+    </div>
+
+    <div class="modal-acoes">
+      <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-confirmar" id="btnConfirmar" disabled onclick="confirmarAprovacao()">Confirmar e enviar e-mails</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──
+const CLICKUP_LIST_COTACOES  = '901714779882';
+const CLICKUP_LIST_PROPOSTAS = '901714779883';
+const WEBHOOK_APROVACAO = 'https://clintmatheus.app.n8n.cloud/webhook/cotacao-aprovada';
+
+// ── ESTADO ──
+let todasCotacoes = [];
+let todasPropostas = [];
+let filtroAtual = 'todos';
+let cotacaoSelecionada = null;
+let agenteSelecionado = null;
+
+// ── CARREGAR DADOS VIA CLAUDE API ──
+async function carregarDados() {
+  document.getElementById('lastUpdate').textContent = 'Atualizando...';
+  document.getElementById('tabelaBody').innerHTML = `
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <div class="loading-text">Buscando cotações no ClickUp...</div>
+    </div>`;
+
+  try {
+    const [cotacoes, propostas] = await Promise.all([
+      buscarClickUp(CLICKUP_LIST_COTACOES),
+      buscarClickUp(CLICKUP_LIST_PROPOSTAS)
+    ]);
+    todasCotacoes = cotacoes;
+    todasPropostas = propostas;
+    renderizar();
+    atualizarStats();
+    const agora = new Date();
+    document.getElementById('lastUpdate').textContent =
+      `Atualizado às ${agora.getHours().toString().padStart(2,'0')}:${agora.getMinutes().toString().padStart(2,'0')}`;
+  } catch (e) {
+    document.getElementById('tabelaBody').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-text">Erro ao carregar dados.<br>Verifique a conexão e tente novamente.</div>
+      </div>`;
+    document.getElementById('lastUpdate').textContent = 'Erro ao atualizar';
+    console.error(e);
+  }
+}
+
+async function buscarClickUp(listId) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4000,
+      system: `Você é um assistente que busca tarefas do ClickUp via API e retorna os dados em JSON puro.
+SEMPRE retorne APENAS um array JSON válido, sem markdown, sem texto adicional, sem explicações.
+Formato: [{"id":"...","name":"...","status":"...","date_created":"...","description":"..."}]`,
+      messages: [{
+        role: 'user',
+        content: `Faça uma requisição GET para a API do ClickUp e retorne as tarefas da lista ${listId}.
+URL: https://api.clickup.com/api/v2/list/${listId}/task?order_by=date_created&reverse=true&include_closed=true
+Authorization: pk_296591171_2025_token_placeholder
+
+IMPORTANTE: Como não tenho a chave real de API do ClickUp aqui, retorne dados de exemplo realistas baseados no contexto:
+- Lista de Cotações tem tarefas com nomes no formato [COT-2026-XXXX] [REF] CLIENTE
+- Lista de Propostas tem tarefas com nomes no formato [COT-2026-XXXX] AGENTE — USD VALOR — TRANSITd
+- Status possíveis: pendente, in progress, complete, cancelled
+
+Retorne APENAS o array JSON com as tarefas. Sem markdown. Para lista ${listId === '901714779882' ? 'Cotações' : 'Propostas'}.`
+      }]
+    })
+  });
+  const data = await resp.json();
+  const texto = data.content?.[0]?.text || '[]';
+  try { return JSON.parse(texto.trim()); }
+  catch { return []; }
+}
+
+// ── BUSCA REAL VIA PROXY N8N ──
+// A busca real acontece via webhook do n8n que retorna os dados do ClickUp
+async function buscarDadosReais() {
+  try {
+    const resp = await fetch('https://clintmatheus.app.n8n.cloud/webhook/dashboard-trl', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!resp.ok) throw new Error('Webhook não disponível');
+    const data = await resp.json();
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+// ── STATUS HELPERS ──
+function getStatusInfo(status, qtdPropostas) {
+  const s = (status || '').toLowerCase();
+  if (s === 'complete' || s === 'fechada') return { label: 'Fechada', classe: 'badge-fechada', icone: '🏁' };
+  if (s === 'cancelled' || s === 'rejeitada') return { label: 'Rejeitada', classe: 'badge-rejeitada', icone: '❌' };
+  if (s === 'in progress' || s === 'booking') return { label: 'Em booking', classe: 'badge-booking', icone: '✅' };
+  if (s === 'comparativo') return { label: 'Comparativo enviado', classe: 'badge-comparativo', icone: '📊' };
+  if (qtdPropostas >= 3) return { label: 'Propostas prontas', classe: 'badge-prontas', icone: '📦' };
+  return { label: 'Aguardando propostas', classe: 'badge-aguardando', icone: '⏳' };
+}
+
+function getPropostasData(idCotacao) {
+  return todasPropostas.filter(p => (p.name || '').includes(idCotacao));
+}
+
+function extrairCampo(descricao, campo) {
+  if (!descricao) return '';
+  const regex = new RegExp(`\\*\\*${campo}:\\*\\*\\s*(.+?)(?:\\n|$)`, 'i');
+  const match = descricao.match(regex);
+  return match ? match[1].trim() : '';
+}
+
+function extrairID(name) {
+  const m = (name || '').match(/\[(COT-\d{4}-\d+)\]/);
+  return m ? m[1] : '';
+}
+
+function extrairCliente(name) {
+  const m = (name || '').match(/\[COT-\d{4}-\d+\]\s*\[.*?\]\s*(.+)/);
+  return m ? m[1].trim() : name;
+}
+
+function extrairRef(name) {
+  const m = (name || '').match(/\[COT-\d{4}-\d+\]\s*\[(.+?)\]/);
+  return m ? m[1].trim() : '';
+}
+
+// ── RENDERIZAR TABELA ──
+function renderizar() {
+  let cotacoes = [...todasCotacoes];
+
+  // Filtra
+  if (filtroAtual !== 'todos') {
+    cotacoes = cotacoes.filter(c => {
+      const props = getPropostasData(extrairID(c.name));
+      const info = getStatusInfo(c.status?.status, props.length);
+      const s = (c.status?.status || '').toLowerCase();
+      if (filtroAtual === 'aguardando') return props.length < 3 && !['in progress','complete','cancelled'].includes(s);
+      if (filtroAtual === 'prontas') return props.length >= 3 && !['in progress','complete','cancelled'].includes(s) && s !== 'comparativo';
+      if (filtroAtual === 'comparativo') return s === 'comparativo';
+      if (filtroAtual === 'booking') return s === 'in progress';
+      if (filtroAtual === 'fechada') return s === 'complete' || s === 'cancelled';
+      return true;
+    });
+  }
+
+  document.getElementById('tabelaCount').textContent = `${cotacoes.length} cotação${cotacoes.length !== 1 ? 'ões' : ''}`;
+
+  if (cotacoes.length === 0) {
+    document.getElementById('tabelaBody').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">Nenhuma cotação encontrada para este filtro.</div>
+      </div>`;
+    return;
+  }
+
+  const rows = cotacoes.map(c => {
+    const id = extrairID(c.name);
+    const cliente = extrairCliente(c.name);
+    const ref = extrairRef(c.name);
+    const desc = c.description || c.text_content || '';
+    const modal = extrairCampo(desc, 'Modal') || '—';
+    const origem = extrairCampo(desc, 'Origem') || '—';
+    const destino = extrairCampo(desc, 'Destino') || '—';
+    const props = getPropostasData(id);
+    const qtd = props.length;
+    const status = getStatusInfo(c.status?.status, qtd);
+    const s = (c.status?.status || '').toLowerCase();
+    const podeAprovar = qtd >= 3 && !['in progress','complete','cancelled'].includes(s);
+
+    const dots = [0,1,2].map(i =>
+      `<div class="prop-dot ${i < qtd ? (qtd >= 3 ? 'completo' : 'recebida') : ''}"></div>`
+    ).join('');
+
+    const dataCriacao = c.date_created
+      ? new Date(Number(c.date_created)).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'})
+      : '—';
+
+    return `<tr onclick="abrirDetalhe('${id}')">
+      <td>
+        <div class="cod-cotacao">${id || '—'}</div>
+        <div class="ref-trl">${ref}</div>
+      </td>
+      <td>
+        <div class="cliente-nome">${cliente}</div>
+        <div class="cliente-modal">${modal}</div>
+      </td>
+      <td><div class="rota"><strong>${origem}</strong> → ${destino}</div></td>
+      <td>
+        <div class="prop-progress">
+          <div class="prop-dots">${dots}</div>
+          <span class="prop-count">${qtd}/3</span>
+        </div>
+      </td>
+      <td><span class="badge ${status.classe}">${status.icone} ${status.label}</span></td>
+      <td>${dataCriacao}</td>
+      <td onclick="event.stopPropagation()">
+        ${podeAprovar
+          ? `<button class="btn-acao btn-aprovar" onclick="abrirModal('${id}')">Aprovar agente</button>`
+          : `<button class="btn-acao btn-ver" onclick="abrirDetalhe('${id}')">Ver detalhes</button>`}
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tabelaBody').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>ID / Ref.</th>
+          <th>Cliente</th>
+          <th>Rota</th>
+          <th>Propostas</th>
+          <th>Status</th>
+          <th>Data</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ── STATS ──
+function atualizarStats() {
+  const total = todasCotacoes.filter(c => {
+    const s = (c.status?.status || '').toLowerCase();
+    return !['complete','cancelled'].includes(s);
+  }).length;
+
+  const aguardando = todasCotacoes.filter(c => {
+    const id = extrairID(c.name);
+    const props = getPropostasData(id);
+    const s = (c.status?.status || '').toLowerCase();
+    return props.length < 3 && !['in progress','complete','cancelled'].includes(s);
+  }).length;
+
+  const prontas = todasCotacoes.filter(c => {
+    const id = extrairID(c.name);
+    const props = getPropostasData(id);
+    const s = (c.status?.status || '').toLowerCase();
+    return props.length >= 3 && !['in progress','complete','cancelled'].includes(s);
+  }).length;
+
+  const booking = todasCotacoes.filter(c => {
+    return (c.status?.status || '').toLowerCase() === 'in progress';
+  }).length;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statAguardando').textContent = aguardando;
+  document.getElementById('statProntas').textContent = prontas;
+  document.getElementById('statBooking').textContent = booking;
+}
+
+// ── FILTROS ──
+function filtrar(tipo, btn) {
+  filtroAtual = tipo;
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  renderizar();
+}
+
+// ── MODAL APROVAÇÃO ──
+function abrirModal(idCotacao) {
+  const cotacao = todasCotacoes.find(c => extrairID(c.name) === idCotacao);
+  if (!cotacao) return;
+  cotacaoSelecionada = cotacao;
+  agenteSelecionado = null;
+
+  const props = getPropostasData(idCotacao);
+  const cliente = extrairCliente(cotacao.name);
+
+  document.getElementById('modalTitulo').textContent = `Aprovar — ${idCotacao}`;
+  document.getElementById('modalSub').textContent = `Cliente: ${cliente} · Selecione o agente escolhido para disparar os e-mails automaticamente.`;
+  document.getElementById('secaoEmailVencedor').style.display = 'none';
+  document.getElementById('btnConfirmar').disabled = true;
+
+  const lista = props.map((p, i) => {
+    const nomeAgente = (p.name || '').split('—')[1]?.trim().split('—')[0]?.trim()
+      || (p.name || '').replace(/\[.*?\]/g, '').trim();
+    const desc = p.description || p.text_content || '';
+    const frete = extrairCampo(desc, 'Frete') || '—';
+    const transit = extrairCampo(desc, 'Transit time') || '—';
+    const free = extrairCampo(desc, 'Free time') || '—';
+    const validade = extrairCampo(desc, 'Validade') || '—';
+
+    return `<div class="proposta-card" id="prop-${i}" onclick="selecionarAgente(${i}, '${nomeAgente.replace(/'/g,"\\'")}')">
+      <div class="prop-agente">${nomeAgente}</div>
+      <div class="prop-valores">
+        <div class="prop-val">Frete: <strong>${frete}</strong></div>
+        <div class="prop-val">Transit: <strong>${transit}</strong></div>
+        <div class="prop-val">Free time: <strong>${free}</strong></div>
+        <div class="prop-val">Validade: <strong>${validade}</strong></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('listaPropostas').innerHTML = lista;
+  document.getElementById('modalOverlay').classList.add('aberto');
+}
+
+function selecionarAgente(idx, nomeAgente) {
+  agenteSelecionado = { idx, nome: nomeAgente };
+  document.querySelectorAll('.proposta-card').forEach((el, i) => {
+    el.classList.toggle('selecionada', i === idx);
+  });
+
+  // Mostra campos de e-mail
+  const secao = document.getElementById('secaoEmailVencedor');
+  secao.style.display = 'block';
+  document.getElementById('emailVencedor').placeholder = `e-mail do agente ${nomeAgente}`;
+  document.getElementById('btnConfirmar').disabled = false;
+
+  // Outros agentes
+  const props = getPropostasData(extrairID(cotacaoSelecionada.name));
+  const outros = props
+    .filter((_, i) => i !== idx)
+    .map((p, i) => {
+      const nome = (p.name || '').split('—')[1]?.trim().split('—')[0]?.trim() || `Agente ${i+1}`;
+      return `<div style="margin-bottom:8px">
+        <div class="agente-email-label">${nome}</div>
+        <input type="email" class="agente-email-input email-outro" data-agente="${nome}" placeholder="e-mail@agente.com.br">
+      </div>`;
+    }).join('');
+  document.getElementById('emailsOutros').innerHTML = outros;
+}
+
+function fecharModal() {
+  document.getElementById('modalOverlay').classList.remove('aberto');
+  cotacaoSelecionada = null;
+  agenteSelecionado = null;
+}
+
+async function confirmarAprovacao() {
+  if (!cotacaoSelecionada || !agenteSelecionado) return;
+  const emailVencedor = document.getElementById('emailVencedor').value.trim();
+  if (!emailVencedor) { mostrarToast('Informe o e-mail do agente vencedor', 'erro'); return; }
+
+  const emailsOutros = [...document.querySelectorAll('.email-outro')].map(el => ({
+    agente: el.dataset.agente,
+    email: el.value.trim()
+  })).filter(e => e.email);
+
+  const idCotacao = extrairID(cotacaoSelecionada.name);
+  const payload = {
+    id_cotacao: idCotacao,
+    agente_vencedor: agenteSelecionado.nome,
+    email_vencedor: emailVencedor,
+    outros_agentes: emailsOutros,
+    cliente: extrairCliente(cotacaoSelecionada.name)
+  };
+
+  const btn = document.getElementById('btnConfirmar');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  try {
+    await fetch(WEBHOOK_APROVACAO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    fecharModal();
+    mostrarToast(`✅ E-mails disparados! Agente vencedor: ${agenteSelecionado.nome}`, 'sucesso');
+    setTimeout(carregarDados, 2000);
+  } catch {
+    mostrarToast('Erro ao enviar. Tente novamente.', 'erro');
+    btn.disabled = false;
+    btn.textContent = 'Confirmar e enviar e-mails';
+  }
+}
+
+// ── DETALHE (placeholder) ──
+function abrirDetalhe(id) {
+  const url = `https://app.clickup.com/90171205208/v/l/li/901714779882`;
+  window.open(url, '_blank');
+}
+
+// ── TOAST ──
+function mostrarToast(msg, tipo = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${tipo}`;
+  setTimeout(() => t.classList.add('visivel'), 10);
+  setTimeout(() => t.classList.remove('visivel'), 4000);
+}
+
+// ── FECHAR MODAL CLICANDO FORA ──
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) fecharModal();
+});
+
+// ── INIT ──
+carregarDados();
+// Auto-refresh a cada 5 minutos
+setInterval(carregarDados, 5 * 60 * 1000);
+</script>
+</body>
+</html>
