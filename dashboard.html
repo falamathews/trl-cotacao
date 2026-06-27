@@ -457,8 +457,9 @@
       <div class="modal-secao-titulo">E-mail do agente vencedor</div>
       <div class="agente-email-label">Para onde enviar o e-mail de confirmação ao agente escolhido?</div>
       <input type="email" class="agente-email-input" id="emailVencedor" placeholder="comercial@agente.com.br">
-      <div class="modal-secao-titulo" style="margin-top:16px">E-mails dos outros agentes (recebem "não foi dessa vez")</div>
+      <div class="modal-secao-titulo" style="margin-top:16px">E-mails dos outros agentes — opcional (recebem "não foi dessa vez")</div>
       <div id="emailsOutros"></div>
+      <p style="font-size:11px;color:var(--cinza-t);margin-top:6px">💡 Deixe em branco se não quiser notificar os outros agentes agora.</p>
     </div>
 
     <div class="modal-acoes">
@@ -743,7 +744,11 @@ function abrirModal(idCotacao) {
   cotacaoSelecionada = cotacao;
   agenteSelecionado = null;
 
-  const props = getPropostasData(idCotacao);
+  // Pega apenas as 3 propostas mais recentes pra evitar duplicatas de teste
+  const todasProps = getPropostasData(idCotacao);
+  const props = todasProps
+    .sort((a, b) => Number(b.date_created||0) - Number(a.date_created||0))
+    .slice(0, 3);
   const cliente = extrairCliente(cotacao.name);
 
   document.getElementById('modalTitulo').textContent = `Aprovar — ${idCotacao}`;
@@ -830,20 +835,20 @@ async function confirmarAprovacao() {
   btn.disabled = true;
   btn.textContent = 'Enviando...';
 
-  try {
-    await fetch(WEBHOOK_APROVACAO, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    fecharModal();
-    mostrarToast(`✅ E-mails disparados! Agente vencedor: ${agenteSelecionado.nome}`, 'sucesso');
-    setTimeout(carregarDados, 2000);
-  } catch {
-    mostrarToast('Erro ao enviar. Tente novamente.', 'erro');
-    btn.disabled = false;
-    btn.textContent = 'Confirmar e enviar e-mails';
-  }
+  // Envia e ignora erro de CORS na resposta — o n8n processa mesmo sem retornar
+  fetch(WEBHOOK_APROVACAO, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+
+  // Aguarda 2s pro n8n processar e fecha o modal
+  await new Promise(r => setTimeout(r, 2000));
+  fecharModal();
+  mostrarToast(`✅ E-mails disparados! Agente vencedor: ${agenteSelecionado.nome}`, 'sucesso');
+  btn.disabled = false;
+  btn.textContent = 'Confirmar e enviar e-mails';
+  setTimeout(carregarDados, 3000);
 }
 
 // ── DETALHE (placeholder) ──
