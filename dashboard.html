@@ -568,11 +568,11 @@ async function buscarDadosReais() {
 // ── STATUS HELPERS ──
 function getStatusInfo(status, qtdPropostas) {
   const s = (status || '').toLowerCase();
-  if (s === 'complete' || s === 'fechada') return { label: 'Fechada', classe: 'badge-fechada', icone: '🏁' };
-  if (s === 'cancelled' || s === 'rejeitada') return { label: 'Rejeitada', classe: 'badge-rejeitada', icone: '❌' };
-  if (s === 'in progress' || s === 'in progress') return { label: 'Aguardando aprovação', classe: 'badge-aguardando-aprovacao', icone: '✅' };
-  if (s === 'comparativo') return { label: 'Comparativo enviado', classe: 'badge-comparativo', icone: '📊' };
-  if (qtdPropostas >= 3) return { label: 'Propostas prontas', classe: 'badge-prontas', icone: '📦' };
+  if (s === 'concluída' || s === 'concluida') return { label: 'Concluída', classe: 'badge-fechada', icone: '🏁' };
+  if (s === 'cancelada' || s === 'cancelled') return { label: 'Cancelada', classe: 'badge-rejeitada', icone: '❌' };
+  if (s === 'aguardando aprovação' || s === 'aguardando aprovacao') return { label: 'Aguardando aprovação', classe: 'badge-aguardando-aprovacao', icone: '🟡' };
+  if (s === 'comparativo enviado') return { label: 'Comparativo enviado', classe: 'badge-comparativo', icone: '📊' };
+  if (s === 'propostas recebidas') return { label: 'Propostas recebidas', classe: 'badge-prontas', icone: '📦' };
   return { label: 'Aguardando propostas', classe: 'badge-aguardando', icone: '⏳' };
 }
 
@@ -612,11 +612,11 @@ function renderizar() {
       const props = getPropostasData(extrairID(c.name));
       const info = getStatusInfo(c.status?.status, props.length);
       const s = (c.status?.status || '').toLowerCase();
-      if (filtroAtual === 'aguardando') return props.length < 3 && !['in progress','complete','cancelled'].includes(s);
-      if (filtroAtual === 'prontas') return props.length >= 3 && !['in progress','complete','cancelled'].includes(s) && s !== 'comparativo';
-      if (filtroAtual === 'comparativo') return s === 'comparativo';
-      if (filtroAtual === 'aprovacao') return s === 'in progress';
-      if (filtroAtual === 'fechada') return s === 'complete' || s === 'cancelled';
+      if (filtroAtual === 'aguardando') return s === 'aguardando propostas';
+      if (filtroAtual === 'prontas') return s === 'propostas recebidas';
+      if (filtroAtual === 'comparativo') return s === 'comparativo enviado';
+      if (filtroAtual === 'aprovacao') return s === 'aguardando aprovação';
+      if (filtroAtual === 'fechada') return s === 'concluída' || s === 'cancelada';
       return true;
     });
   }
@@ -644,7 +644,7 @@ function renderizar() {
     const qtd = props.length;
     const status = getStatusInfo(c.status?.status, qtd);
     const s = (c.status?.status || '').toLowerCase();
-    const podeAprovar = qtd >= 3 && !['in progress','complete','cancelled'].includes(s);
+    const podeAprovar = s === 'propostas recebidas' || s === 'comparativo enviado';
 
     const dots = [0,1,2].map(i =>
       `<div class="prop-dot ${i < qtd ? (qtd >= 3 ? 'completo' : 'recebida') : ''}"></div>`
@@ -701,7 +701,7 @@ function renderizar() {
 function atualizarStats() {
   const total = todasCotacoes.filter(c => {
     const s = (c.status?.status || '').toLowerCase();
-    return !['complete','cancelled'].includes(s);
+    return !['concluída', 'concluida', 'cancelada'].includes(s);
   }).length;
 
   const aguardando = todasCotacoes.filter(c => {
