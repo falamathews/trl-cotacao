@@ -192,7 +192,7 @@
     .badge-propostas  { background: var(--azul-claro-bg); color: var(--azul-claro); }
     .badge-prontas    { background: #FFF0E6; color: var(--laranja); }
     .badge-comparativo{ background: #EDE7F6; color: #5E35B1; }
-    .badge-booking    { background: var(--verde-bg); color: var(--verde); }
+    .badge-aguardando-aprovacao    { background: var(--verde-bg); color: var(--verde); }
     .badge-fechada    { background: #F3F4F6; color: #6B7280; }
     .badge-rejeitada  { background: var(--vermelho-bg); color: var(--vermelho); }
 
@@ -414,7 +414,7 @@
     <div class="stat-card"><div class="stat-label">Total ativo</div><div class="stat-value" id="statTotal">—</div></div>
     <div class="stat-card"><div class="stat-label">Aguardando propostas</div><div class="stat-value laranja" id="statAguardando">—</div></div>
     <div class="stat-card"><div class="stat-label">Prontas p/ comparativo</div><div class="stat-value" style="color:#E8732A" id="statProntas">—</div></div>
-    <div class="stat-card"><div class="stat-label">Em booking</div><div class="stat-value verde" id="statBooking">—</div></div>
+    <div class="stat-card"><div class="stat-label">Aguardando aprovação</div><div class="stat-value verde" id="statAprovacao">—</div></div>
   </div>
 
   <!-- FILTROS -->
@@ -423,7 +423,7 @@
     <button class="filtro-btn" onclick="filtrar('aguardando', this)">⏳ Aguardando propostas</button>
     <button class="filtro-btn" onclick="filtrar('prontas', this)">📦 Propostas prontas</button>
     <button class="filtro-btn" onclick="filtrar('comparativo', this)">📊 Comparativo enviado</button>
-    <button class="filtro-btn" onclick="filtrar('booking', this)">✅ Em booking</button>
+    <button class="filtro-btn" onclick="filtrar('aprovacao', this)">🟡 Aguardando aprovação</button>
     <button class="filtro-btn" onclick="filtrar('fechada', this)">🏁 Fechadas</button>
   </div>
 
@@ -568,7 +568,7 @@ function getStatusInfo(status, qtdPropostas) {
   const s = (status || '').toLowerCase();
   if (s === 'complete' || s === 'fechada') return { label: 'Fechada', classe: 'badge-fechada', icone: '🏁' };
   if (s === 'cancelled' || s === 'rejeitada') return { label: 'Rejeitada', classe: 'badge-rejeitada', icone: '❌' };
-  if (s === 'in progress' || s === 'booking') return { label: 'Em booking', classe: 'badge-booking', icone: '✅' };
+  if (s === 'in progress' || s === 'in progress') return { label: 'Aguardando aprovação', classe: 'badge-aguardando-aprovacao', icone: '✅' };
   if (s === 'comparativo') return { label: 'Comparativo enviado', classe: 'badge-comparativo', icone: '📊' };
   if (qtdPropostas >= 3) return { label: 'Propostas prontas', classe: 'badge-prontas', icone: '📦' };
   return { label: 'Aguardando propostas', classe: 'badge-aguardando', icone: '⏳' };
@@ -613,7 +613,7 @@ function renderizar() {
       if (filtroAtual === 'aguardando') return props.length < 3 && !['in progress','complete','cancelled'].includes(s);
       if (filtroAtual === 'prontas') return props.length >= 3 && !['in progress','complete','cancelled'].includes(s) && s !== 'comparativo';
       if (filtroAtual === 'comparativo') return s === 'comparativo';
-      if (filtroAtual === 'booking') return s === 'in progress';
+      if (filtroAtual === 'aprovacao') return s === 'in progress';
       if (filtroAtual === 'fechada') return s === 'complete' || s === 'cancelled';
       return true;
     });
@@ -716,14 +716,14 @@ function atualizarStats() {
     return props.length >= 3 && !['in progress','complete','cancelled'].includes(s);
   }).length;
 
-  const booking = todasCotacoes.filter(c => {
-    return (c.status?.status || '').toLowerCase() === 'in progress';
+  const emAprovacao = todasCotacoes.filter(c => {
+    return (c.status?.status || '').toLowerCase() === 'aguardando_aprovacao';
   }).length;
 
   document.getElementById('statTotal').textContent = total;
   document.getElementById('statAguardando').textContent = aguardando;
   document.getElementById('statProntas').textContent = prontas;
-  document.getElementById('statBooking').textContent = booking;
+  document.getElementById('statAprovacao').textContent = emAprovacao;
 }
 
 // ── FILTROS ──
