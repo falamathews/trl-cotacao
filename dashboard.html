@@ -494,12 +494,14 @@ async function carregarDados() {
     </div>`;
 
   try {
-    const [cotacoes, propostas] = await Promise.all([
-      buscarClickUp(CLICKUP_LIST_COTACOES),
-      buscarClickUp(CLICKUP_LIST_PROPOSTAS)
-    ]);
-    todasCotacoes = cotacoes;
-    todasPropostas = propostas;
+    const resp = await fetch('https://clintmatheus.app.n8n.cloud/webhook/dashboard-trl', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!resp.ok) throw new Error('Erro ao buscar dados');
+    const data = await resp.json();
+    todasCotacoes = data.cotacoes || [];
+    todasPropostas = data.propostas || [];
     renderizar();
     atualizarStats();
     const agora = new Date();
