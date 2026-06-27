@@ -764,14 +764,16 @@ function abrirModal(idCotacao) {
     const transit = extrairCampo(desc, 'Transit time') || '—';
     const free = extrairCampo(desc, 'Free time') || '—';
     const validade = extrairCampo(desc, 'Validade') || '—';
+    const emailAgente = extrairCampo(desc, 'E-mail agente') || '';
 
-    return `<div class="proposta-card" id="prop-${i}" onclick="selecionarAgente(${i}, '${nomeAgente.replace(/'/g,"\\'")}')">
+    return `<div class="proposta-card" id="prop-${i}" onclick="selecionarAgente(${i}, '${nomeAgente.replace(/'/g,"\\'")}', '${emailAgente}')">
       <div class="prop-agente">${nomeAgente}</div>
       <div class="prop-valores">
         <div class="prop-val">Frete: <strong>${frete}</strong></div>
         <div class="prop-val">Transit: <strong>${transit}</strong></div>
         <div class="prop-val">Free time: <strong>${free}</strong></div>
         <div class="prop-val">Validade: <strong>${validade}</strong></div>
+        ${emailAgente ? `<div class="prop-val" style="color:var(--verde)">✉️ <strong>${emailAgente}</strong></div>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -780,8 +782,8 @@ function abrirModal(idCotacao) {
   document.getElementById('modalOverlay').classList.add('aberto');
 }
 
-function selecionarAgente(idx, nomeAgente) {
-  agenteSelecionado = { idx, nome: nomeAgente };
+function selecionarAgente(idx, nomeAgente, emailAgente = '') {
+  agenteSelecionado = { idx, nome: nomeAgente, email: emailAgente };
   document.querySelectorAll('.proposta-card').forEach((el, i) => {
     el.classList.toggle('selecionada', i === idx);
   });
@@ -789,18 +791,38 @@ function selecionarAgente(idx, nomeAgente) {
   // Mostra campos de e-mail
   const secao = document.getElementById('secaoEmailVencedor');
   secao.style.display = 'block';
-  document.getElementById('emailVencedor').placeholder = `e-mail do agente ${nomeAgente}`;
+
+  // Pré-preenche o e-mail do vencedor se foi salvo automaticamente
+  const inputVencedor = document.getElementById('emailVencedor');
+  if (emailAgente) {
+    inputVencedor.value = emailAgente;
+    inputVencedor.style.borderColor = 'var(--verde)';
+  } else {
+    inputVencedor.value = '';
+    inputVencedor.style.borderColor = '';
+    inputVencedor.placeholder = `e-mail do agente ${nomeAgente}`;
+  }
   document.getElementById('btnConfirmar').disabled = false;
 
-  // Outros agentes
-  const props = getPropostasData(extrairID(cotacaoSelecionada.name));
+  // Pega as 3 propostas mais recentes pra montar os outros agentes
+  const todasProps = getPropostasData(extrairID(cotacaoSelecionada.name));
+  const props = todasProps
+    .sort((a, b) => Number(b.date_created||0) - Number(a.date_created||0))
+    .slice(0, 3);
+
   const outros = props
     .filter((_, i) => i !== idx)
-    .map((p, i) => {
-      const nome = (p.name || '').split('—')[1]?.trim().split('—')[0]?.trim() || `Agente ${i+1}`;
+    .map((p, j) => {
+      const nome = (p.name || '').split('—')[1]?.trim().split('—')[0]?.trim() || `Agente ${j+1}`;
+      const desc = p.description || p.text_content || '';
+      const emailSalvo = extrairCampo(desc, 'E-mail agente') || '';
       return `<div style="margin-bottom:8px">
         <div class="agente-email-label">${nome}</div>
-        <input type="email" class="agente-email-input email-outro" data-agente="${nome}" placeholder="e-mail@agente.com.br">
+        <input type="email" class="agente-email-input email-outro" data-agente="${nome}"
+          value="${emailSalvo}"
+          placeholder="e-mail@agente.com.br"
+          style="${emailSalvo ? 'border-color:var(--verde)' : ''}">
+        ${emailSalvo ? '<div style="font-size:11px;color:var(--verde);margin-top:3px">✅ E-mail salvo automaticamente</div>' : ''}
       </div>`;
     }).join('');
   document.getElementById('emailsOutros').innerHTML = outros;
