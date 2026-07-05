@@ -881,7 +881,7 @@ async function confirmarAprovacao() {
 // ── BAIXAR COMPARATIVO CSV ──
 function baixarComparativo(idCotacao) {
   const url = `https://clintmatheus.app.n8n.cloud/webhook/comparativo?cot=${encodeURIComponent(idCotacao)}`;
-  mostrarToast('📊 Gerando comparativo...', '');
+  mostrarToast('📊 Gerando planilha XLSX...', '');
   window.open(url, '_blank');
 }
 
