@@ -221,6 +221,8 @@
     }
     .btn-aprovar { background: var(--laranja); color: white; }
     .btn-aprovar:hover { background: var(--laranja-l); }
+    .btn-comparativo { background: #E8F5EE; color: #1A7A4A; }
+    .btn-comparativo:hover { background: #D0EBDD; }
     .btn-ver { background: var(--azul-claro-bg); color: var(--azul-claro); }
     .btn-ver:hover { background: #D0E3FC; }
 
@@ -675,7 +677,10 @@ function renderizar() {
       <td>${dataCriacao}</td>
       <td onclick="event.stopPropagation()">
         ${podeAprovar
-          ? `<button class="btn-acao btn-aprovar" onclick="abrirModal('${id}')">Aprovar agente</button>`
+          ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
+               <button class="btn-acao btn-comparativo" onclick="baixarComparativo('${id}')">📊 Comparativo</button>
+               <button class="btn-acao btn-aprovar" onclick="abrirModal('${id}')">Aprovar agente</button>
+             </div>`
           : `<button class="btn-acao btn-ver" onclick="abrirDetalhe('${id}')">Ver detalhes</button>`}
       </td>
     </tr>`;
@@ -871,6 +876,13 @@ async function confirmarAprovacao() {
   btn.disabled = false;
   btn.textContent = 'Confirmar e enviar e-mails';
   setTimeout(carregarDados, 3000);
+}
+
+// ── BAIXAR COMPARATIVO CSV ──
+function baixarComparativo(idCotacao) {
+  const url = `https://clintmatheus.app.n8n.cloud/webhook/comparativo?cot=${encodeURIComponent(idCotacao)}`;
+  mostrarToast('📊 Gerando comparativo...', '');
+  window.open(url, '_blank');
 }
 
 // ── DETALHE (placeholder) ──
