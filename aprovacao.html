@@ -230,6 +230,14 @@
     "s.operacional@trlinternacionaltrade.com.br",
     "luana@trlinternacional.com.br"
   ];
+  // Token compartilhado entre esta tela e os webhooks do n8n (auditoria 07/09/2026).
+  // NAO e um segredo forte: fica visivel no codigo-fonte desta pagina. Serve para que
+  // quem tem apenas o numero do processo — que circula em todo e-mail aos agentes —
+  // nao consiga fechar uma cotacao nem baixar os precos das propostas.
+  // Se mudar aqui, tem de mudar tambem nos nos "Autorizado?" do n8n, e vice-versa.
+  // Evolucao prevista: token por cotacao, de uso unico, gerado no envio do comparativo.
+  const APP_TOKEN = "trl_RRDZELVI2Pj2531XTbA6fWaCL3jlEDGa";
+  const AUTH_HEADERS = { "x-trl-token": APP_TOKEN };
   /* ========================================== */
 
   const $ = id => document.getElementById(id);
@@ -247,7 +255,8 @@
     try{
       let data;
       if (LOAD_URL){
-        const res = await fetch(LOAD_URL + '?cot=' + encodeURIComponent(cotId));
+        const res = await fetch(LOAD_URL + '?cot=' + encodeURIComponent(cotId), { headers: AUTH_HEADERS });
+        if(res.status === 401) throw new Error('NAO_AUTORIZADO');
         if(!res.ok) throw new Error('HTTP '+res.status);
         data = await res.json();
       } else {
@@ -263,6 +272,9 @@
       renderApprove();
     }catch(e){
       console.error(e);
+      $('loadErr').textContent = (e && e.message === 'NAO_AUTORIZADO')
+        ? 'Esta tela não está autorizada a consultar cotações. Avise o suporte — o token de acesso deve ter mudado no sistema.'
+        : 'Não encontrei essa cotação. Confira o número.';
       $('loadErr').classList.add('show');
     }finally{
       $('btnLoad').disabled = false; $('btnLoad').textContent = 'Carregar';
@@ -362,8 +374,22 @@
     $('btnApprove').disabled=true; $('btnApprove').textContent='Enviando…';
     try{
       if(APPROVE_URL){
-        const res = await fetch(APPROVE_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-        if(!res.ok) throw new Error('HTTP '+res.status);
+        const res = await fetch(APPROVE_URL, {
+          method:'POST',
+          headers:{'Content-Type':'application/json', 'x-trl-token': APP_TOKEN},
+          body:JSON.stringify(payload)
+        });
+        if(res.status === 401) throw new Error('NAO_AUTORIZADO');
+        const txt = await res.text();
+        if(!res.ok) throw new Error(txt || ('HTTP '+res.status));
+        // O n8n responde {"ok":true} no caminho feliz. Qualquer outra resposta 2xx e um
+        // aviso de falha parcial (ex: aprovacao registrada mas a planilha nao completou):
+        // mostra o texto do servidor em vez de dizer que deu tudo certo.
+        let body = null; try{ body = JSON.parse(txt); }catch(_){}
+        if(!(body && body.ok === true)){
+          $('approveErr').textContent = txt || 'A aprovação foi registrada, mas uma etapa final pode não ter concluído. Confira antes de seguir.';
+          $('approveErr').classList.add('show');
+        }
       } else {
         await new Promise(r=>setTimeout(r,600));
         console.log('[demo] payload de aprovação:', payload);
@@ -371,6 +397,12 @@
       showDone(payload);
     }catch(e){
       console.error(e);
+      const msg = (e && e.message) ? String(e.message) : '';
+      $('approveErr').textContent = (msg === 'NAO_AUTORIZADO')
+        ? 'Esta tela não está autorizada a aprovar. Avise o suporte — o token de acesso deve ter mudado no sistema.'
+        : ((msg && msg.length > 12 && msg.indexOf('HTTP ') !== 0)
+            ? msg
+            : 'Não consegui enviar agora. Tente de novo em instantes.');
       $('approveErr').classList.add('show');
       $('btnApprove').disabled=false; $('btnApprove').textContent='Aprovar e notificar os agentes';
     }
