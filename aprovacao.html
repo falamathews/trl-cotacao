@@ -262,12 +262,14 @@
       } else {
         // modo demonstração
         await new Promise(r=>setTimeout(r,500));
-        data = { id_cotacao:cotId||'COT-2026-0142', cliente:'ACME Importação Ltda', modal:'Marítimo',
+        data = { id_cotacao:cotId||'COT-2026-0142', existe:true, cliente:'ACME Importação Ltda', modal:'Marítimo',
           agentes:[ {nome:'KPM', email:'cotacoes@kpm-log.com'},
                     {nome:'NAVCOM', email:'quotes@navcom.com'},
                     {nome:'LOGX', email:'sales@logx.com'} ] };
       }
-      if(!data || !data.id_cotacao) throw new Error('NAO_ENCONTRADA');
+      // O backend sempre devolve o id_cotacao que foi pesquisado, mesmo quando o processo
+      // nao existe. Quem diz se achou ou nao e o campo "existe" (webhook cotacao-detalhe).
+      if(!data || data.existe !== true) throw new Error('NAO_ENCONTRADA');
       if(!data.agentes || !data.agentes.length) throw new Error('SEM_PROPOSTAS');
       COT = data;
       renderApprove();
