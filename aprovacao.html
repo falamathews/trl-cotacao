@@ -267,13 +267,16 @@
                     {nome:'NAVCOM', email:'quotes@navcom.com'},
                     {nome:'LOGX', email:'sales@logx.com'} ] };
       }
-      if(!data || !data.agentes || !data.agentes.length) throw new Error('sem agentes');
+      if(!data || !data.id_cotacao) throw new Error('NAO_ENCONTRADA');
+      if(!data.agentes || !data.agentes.length) throw new Error('SEM_PROPOSTAS');
       COT = data;
       renderApprove();
     }catch(e){
       console.error(e);
-      $('loadErr').textContent = (e && e.message === 'NAO_AUTORIZADO')
-        ? 'Esta tela não está autorizada a consultar cotações. Avise o suporte — o token de acesso deve ter mudado no sistema.'
+      const motivo = (e && e.message) ? String(e.message) : '';
+      $('loadErr').textContent =
+          motivo === 'NAO_AUTORIZADO' ? 'Esta tela não está autorizada a consultar cotações. Avise o suporte — o token de acesso deve ter mudado no sistema.'
+        : motivo === 'SEM_PROPOSTAS'  ? 'Esse processo existe, mas ainda não tem propostas registradas. O comparativo só fica pronto quando chegam as 3 — aguarde o e-mail de aviso.'
         : 'Não encontrei essa cotação. Confira o número.';
       $('loadErr').classList.add('show');
     }finally{
